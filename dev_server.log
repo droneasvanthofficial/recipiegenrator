@@ -1,0 +1,130 @@
+
+> my-v0-project@0.1.0 dev /app
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.2:3000
+
+ ✓ Starting...
+ ✓ Ready in 1787ms
+ ○ Compiling / ...
+ ✓ Compiled / in 13.1s (1622 modules)
+ GET / 200 in 14081ms
+ ○ Compiling /generate ...
+ ✓ Compiled /generate in 2.1s (1681 modules)
+ GET /generate 200 in 2319ms
+ GET /generate 200 in 42ms
+ GET / 200 in 291ms
+ GET /generate 200 in 34ms
+ GET /generate 200 in 161ms
+ GET / 200 in 85ms
+ GET /generate 200 in 52ms
+ ○ Compiling /results ...
+ ✓ Compiled /results in 1595ms (1692 modules)
+ GET /results 200 in 1731ms
+ ○ Compiling /api/generate-recipe ...
+ ✓ Compiled /api/generate-recipe in 1938ms (1833 modules)
+Error with Groq API: Error [AI_LoadAPIKeyError]: Groq API key is missing. Pass it using the 'apiKey' parameter or the GROQ_API_KEY environment variable.
+    at async generateRecipesWithGroq (app/api/generate-recipe/route.ts:59:21)
+    at async POST (app/api/generate-recipe/route.ts:35:20)
+  57 |       : ""
+  58 |
+> 59 |     const { text } = await generateText({
+     |                     ^
+  60 |       model: groq("llama-3.3-70b-versatile"),
+  61 |       messages: [
+  62 |         { {
+  cause: undefined
+}
+Error with Groq API: Error [AI_LoadAPIKeyError]: Groq API key is missing. Pass it using the 'apiKey' parameter or the GROQ_API_KEY environment variable.
+    at async generateRecipesWithGroq (app/api/generate-recipe/route.ts:59:21)
+    at async POST (app/api/generate-recipe/route.ts:35:20)
+  57 |       : ""
+  58 |
+> 59 |     const { text } = await generateText({
+     |                     ^
+  60 |       model: groq("llama-3.3-70b-versatile"),
+  61 |       messages: [
+  62 |         { {
+  cause: undefined
+}
+ POST /api/generate-recipe 200 in 2671ms
+ POST /api/generate-recipe 200 in 2672ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /results 200 in 281ms
+Error with Groq API: Error [AI_LoadAPIKeyError]: Groq API key is missing. Pass it using the 'apiKey' parameter or the GROQ_API_KEY environment variable.
+    at async generateRecipesWithGroq (app/api/generate-recipe/route.ts:59:21)
+    at async POST (app/api/generate-recipe/route.ts:35:20)
+  57 |       : ""
+  58 |
+> 59 |     const { text } = await generateText({
+     |                     ^
+  60 |       model: groq("llama-3.3-70b-versatile"),
+  61 |       messages: [
+  62 |         { {
+  cause: undefined
+}
+ POST /api/generate-recipe 200 in 100ms
+ ✓ Compiled in 755ms (1839 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 737ms (1059 modules)
+ GET / 200 in 1056ms
+ GET /generate 200 in 37ms
+ GET /results 200 in 22ms
+Error with Groq API: Error [AI_LoadAPIKeyError]: Groq API key is missing. Pass it using the 'apiKey' parameter or the GROQ_API_KEY environment variable.
+    at async generateRecipesWithGroq (app/api/generate-recipe/route.ts:59:21)
+    at async POST (app/api/generate-recipe/route.ts:35:20)
+  57 |       : ""
+  58 |
+> 59 |     const { text } = await generateText({
+     |                     ^
+  60 |       model: groq("llama-3.3-70b-versatile"),
+  61 |       messages: [
+  62 |         { {
+  cause: undefined
+}
+ POST /api/generate-recipe 200 in 295ms
+Error with Groq API: Error [AI_LoadAPIKeyError]: Groq API key is missing. Pass it using the 'apiKey' parameter or the GROQ_API_KEY environment variable.
+    at async generateRecipesWithGroq (app/api/generate-recipe/route.ts:59:21)
+    at async POST (app/api/generate-recipe/route.ts:35:20)
+  57 |       : ""
+  58 |
+> 59 |     const { text } = await generateText({
+     |                     ^
+  60 |       model: groq("llama-3.3-70b-versatile"),
+  61 |       messages: [
+  62 |         { {
+  cause: undefined
+}
+ POST /api/generate-recipe 200 in 399ms
+ GET / 200 in 66ms
+ GET /generate 200 in 18ms
+ GET /results 200 in 18ms
+Error with Groq API: Error [AI_LoadAPIKeyError]: Groq API key is missing. Pass it using the 'apiKey' parameter or the GROQ_API_KEY environment variable.
+    at async generateRecipesWithGroq (app/api/generate-recipe/route.ts:59:21)
+    at async POST (app/api/generate-recipe/route.ts:35:20)
+  57 |       : ""
+  58 |
+> 59 |     const { text } = await generateText({
+     |                     ^
+  60 |       model: groq("llama-3.3-70b-versatile"),
+  61 |       messages: [
+  62 |         { {
+  cause: undefined
+}
+ POST /api/generate-recipe 200 in 117ms
+Error with Groq API: Error [AI_LoadAPIKeyError]: Groq API key is missing. Pass it using the 'apiKey' parameter or the GROQ_API_KEY environment variable.
+    at async generateRecipesWithGroq (app/api/generate-recipe/route.ts:59:21)
+    at async POST (app/api/generate-recipe/route.ts:35:20)
+  57 |       : ""
+  58 |
+> 59 |     const { text } = await generateText({
+     |                     ^
+  60 |       model: groq("llama-3.3-70b-versatile"),
+  61 |       messages: [
+  62 |         { {
+  cause: undefined
+}
+ POST /api/generate-recipe 200 in 211ms
+ ✓ Compiled in 1854ms (1700 modules)
