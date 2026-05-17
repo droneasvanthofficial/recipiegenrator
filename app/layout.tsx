@@ -2,10 +2,11 @@ import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
+import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Culinara AI - Smart Recipe Generator',
+  description: 'Generate healthy, creative recipes from your fridge ingredients using AI.',
   generator: 'v0.dev',
 }
 
@@ -15,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="antialiased">
       <head>
         <style>{`
 html {
@@ -25,7 +26,10 @@ html {
 }
         `}</style>
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster position="bottom-right" richColors />
+      </body>
     </html>
   )
 }
