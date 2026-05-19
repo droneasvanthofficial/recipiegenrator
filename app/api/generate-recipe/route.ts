@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { groq } from "@ai-sdk/groq"
-import { generateText } from "ai" // switched from generateObject to generateText
+import { generateText } from "ai"
+import { z } from "zod"
+import { sanitizeIngredient } from "@/lib/validation"
 
 interface RecipeRequest {
   ingredients: string[]
@@ -15,24 +17,52 @@ interface Recipe {
   calories?: string
 }
 
+const RecipeRequestSchema = z.object({
+  ingredients: z
+    .array(z.string().min(1).max(100))
+    .min(1, "At least one ingredient is required")
+    .max(50, "Maximum 50 ingredients allowed"),
+})
+
 export async function POST(request: NextRequest) {
   try {
-    const { ingredients }: RecipeRequest = await request.json()
-
-    if (!ingredients || ingredients.length === 0) {
-      return NextResponse.json({ error: "No ingredients provided" }, { status: 400 })
+    // Validate request body
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return createErrorResponse("Invalid JSON in request body", 400)
     }
 
-    const recipes = await generateRecipesWithGroq(ingredients)
+    const validation = RecipeRequestSchema.safeParse(body)
+    if (!validation.success) {
+      const errors = validation.error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ")
+      return createErrorResponse(`Validation error: ${errors}`, 400)
+    }
+
+    const { ingredients } = validation.data
+
+    // Sanitize ingredients
+    const sanitizedIngredients = ingredients.map(sanitizeIngredient).filter((i) => i.length > 0)
+
+    if (sanitizedIngredients.length === 0) {
+      return createErrorResponse("No valid ingredients provided", 400)
+    }
+
+    const recipes = await generateRecipesWithGroq(sanitizedIngredients)
 
     return NextResponse.json({
       success: true,
       recipes,
-      ingredientsUsed: ingredients,
+      ingredientsUsed: sanitizedIngredients,
     })
   } catch (error) {
-    console.error("Error generating recipes:", error)
-    return NextResponse.json({ error: "Failed to generate recipes" }, { status: 500 })
+    console.error("[generate-recipe] Error:", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      type: error instanceof Error ? error.constructor.name : typeof error,
+    })
+
+    return createErrorResponse("Failed to generate recipes. Please try again.", 500)
   }
 }
 
@@ -50,12 +80,13 @@ async function generateRecipesWithGroq(ingredients: string[]): Promise<Recipe[]>
           For each recipe:
           - Make it realistic and cookable with common kitchen tools
           - Include additional common ingredients that complement the provided ones
-          - Provide clear, step-by-step instructions
+          - Provide clear, step-by-step instructions (3-10 steps)
           - Estimate cooking time and servings
           - Try to make each recipe different in style (e.g., one stir-fry, one soup, one baked dish)
           - Keep recipes healthy and balanced when possible
+          - Estimate reasonable calorie counts
 
-          Return the response as a valid JSON object with this exact structure:
+          Return the response ONLY as a valid JSON object with this exact structure (no markdown, no code blocks):
           {
             "recipes": [
               {
@@ -74,9 +105,8 @@ async function generateRecipesWithGroq(ingredients: string[]): Promise<Recipe[]>
 
     let jsonText = text.trim()
 
-    // Check if response is wrapped in markdown code blocks
+    // Check if response is wrapped in markdown code blocks and extract
     if (jsonText.startsWith("```")) {
-      // Extract content between code blocks
       const codeBlockRegex = /```(?:json)?\s*([\s\S]*?)\s*```/
       const match = jsonText.match(codeBlockRegex)
       if (match && match[1]) {
@@ -84,85 +114,38 @@ async function generateRecipesWithGroq(ingredients: string[]): Promise<Recipe[]>
       }
     }
 
-    const parsedResponse = JSON.parse(jsonText)
-    return parsedResponse.recipes || []
+    // Validate and parse the response
+    const RecipeResponseSchema = z.object({
+      recipes: z.array(
+        z.object({
+          title: z.string().min(1).max(200),
+          ingredients: z.array(z.string()).min(1).max(50),
+          instructions: z.array(z.string()).min(3).max(10), // Aligned with prompt specification
+          cookTime: z.string().min(1).max(50),
+          servings: z.string().min(1).max(20),
+          calories: z.string().optional(),
+        }),
+      ),
+    })
+
+    const parsedResponse = RecipeResponseSchema.parse(JSON.parse(jsonText))
+    return parsedResponse.recipes.slice(0, 3) // Ensure max 3 recipes
   } catch (error) {
-    console.error("Error with Groq API:", error)
-    return generateMockRecipes(ingredients)
+    console.error("[generateRecipesWithGroq] Error:", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      type: error instanceof Error ? error.constructor.name : typeof error,
+    })
+
+    throw new Error("Failed to generate recipes from AI model")
   }
 }
 
-function generateMockRecipes(ingredients: string[]): Recipe[] {
-  const mockRecipes: Recipe[] = [
+function createErrorResponse(message: string, status: number) {
+  return NextResponse.json(
     {
-      title: `${ingredients[0]} and ${ingredients[1]} Stir Fry`,
-      ingredients: [
-        `2 cups ${ingredients[1] || "rice"}`,
-        `1 lb ${ingredients[0] || "protein"}, diced`,
-        `2 cups ${ingredients[2] || "vegetables"}`,
-        "2 tbsp olive oil",
-        "1 onion, chopped",
-        "2 cloves garlic, minced",
-        "Salt and pepper to taste",
-      ],
-      instructions: [
-        "Heat olive oil in a large pan over medium heat",
-        `Add diced ${ingredients[0]} and cook until golden brown, about 6-8 minutes`,
-        "Add chopped onion and garlic, cook for 2-3 minutes",
-        `Add ${ingredients[2]} and cook until tender`,
-        `Serve over cooked ${ingredients[1]} and season with salt and pepper`,
-      ],
-      cookTime: "20 minutes",
-      servings: "4",
-      calories: "380",
+      success: false,
+      error: message,
     },
-    {
-      title: `Creamy ${ingredients[0]} Bowl`,
-      ingredients: [
-        `1 lb ${ingredients[0] || "protein"}`,
-        `3 cups ${ingredients[2] || "vegetables"}`,
-        `2 cups ${ingredients[1] || "grain"}`,
-        "1 cup coconut milk",
-        "2 tbsp curry powder",
-        "1 onion, diced",
-        "3 cloves garlic, minced",
-      ],
-      instructions: [
-        `Season and cook ${ingredients[0]} until golden`,
-        "In the same pan, add onion and garlic, cook until fragrant",
-        "Add curry powder and cook for 1 minute",
-        "Add coconut milk and bring to simmer",
-        `Add ${ingredients[2]} and cook until tender`,
-        `Serve over ${ingredients[1]}`,
-      ],
-      cookTime: "25 minutes",
-      servings: "4",
-      calories: "420",
-    },
-    {
-      title: `${ingredients[0]} and ${ingredients[2]} Soup`,
-      ingredients: [
-        `1 lb ${ingredients[0] || "protein"}, cubed`,
-        `3 cups ${ingredients[2] || "vegetables"}, chopped`,
-        "6 cups vegetable broth",
-        "1 can diced tomatoes",
-        "2 tbsp olive oil",
-        "1 onion, diced",
-        "Herbs and spices to taste",
-      ],
-      instructions: [
-        "Heat olive oil in a large pot",
-        `Brown ${ingredients[0]} pieces on all sides`,
-        "Add onion and cook until softened",
-        "Add broth and diced tomatoes, bring to boil",
-        `Add ${ingredients[2]} and simmer for 15-20 minutes`,
-        "Season with herbs and spices, serve hot",
-      ],
-      cookTime: "35 minutes",
-      servings: "6",
-      calories: "280",
-    },
-  ]
-
-  return mockRecipes
+    { status },
+  )
 }
