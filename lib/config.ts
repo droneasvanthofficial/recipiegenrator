@@ -24,16 +24,16 @@ const envSchema = z.object({
 
 export type EnvConfig = z.infer<typeof envSchema>
 
-let config: EnvConfig | null = null
+let validatedConfig: EnvConfig | null = null
 
 export function getConfig(): EnvConfig {
-  if (config) {
-    return config
+  if (validatedConfig) {
+    return validatedConfig
   }
 
   try {
-    config = envSchema.parse(process.env)
-    return config
+    validatedConfig = envSchema.parse(process.env)
+    return validatedConfig
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errors = error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('\n')
@@ -49,4 +49,5 @@ export function getConfig(): EnvConfig {
   }
 }
 
-export const config_unsafe = getConfig()
+// Get validated configuration at module load time
+export const config = getConfig()

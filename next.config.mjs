@@ -39,7 +39,7 @@ const nextConfig = {
   
   // ESLint and TypeScript
   eslint: {
-    // Only run ESLint in development, not during builds
+    // Configure ESLint directories
     dirs: ['pages', 'components', 'lib', 'app'],
   },
   typescript: {

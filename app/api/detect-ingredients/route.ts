@@ -3,10 +3,6 @@ import { groq } from "@ai-sdk/groq"
 import { generateObject } from "ai"
 import { z } from "zod"
 import { sanitizeIngredient, validateImageFile } from "@/lib/validation"
-import { config_unsafe } from "@/lib/config"
-
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 export async function POST(request: NextRequest) {
   try {

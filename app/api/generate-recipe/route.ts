@@ -80,7 +80,7 @@ async function generateRecipesWithGroq(ingredients: string[]): Promise<Recipe[]>
           For each recipe:
           - Make it realistic and cookable with common kitchen tools
           - Include additional common ingredients that complement the provided ones
-          - Provide clear, step-by-step instructions (3-7 steps)
+          - Provide clear, step-by-step instructions (3-10 steps)
           - Estimate cooking time and servings
           - Try to make each recipe different in style (e.g., one stir-fry, one soup, one baked dish)
           - Keep recipes healthy and balanced when possible
@@ -120,7 +120,7 @@ async function generateRecipesWithGroq(ingredients: string[]): Promise<Recipe[]>
         z.object({
           title: z.string().min(1).max(200),
           ingredients: z.array(z.string()).min(1).max(50),
-          instructions: z.array(z.string()).min(1).max(20),
+          instructions: z.array(z.string()).min(3).max(10), // Aligned with prompt specification
           cookTime: z.string().min(1).max(50),
           servings: z.string().min(1).max(20),
           calories: z.string().optional(),
